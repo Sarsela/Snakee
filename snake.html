@@ -2,14 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Snake Game</title>
     <link href="https://fonts.googleapis.com/css?family=Antic+Slab" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="score">0</div>
-    <canvas id="gameCanvas" width="300" height="300"></canvas>
+    <div class="game-header">
+        <div id="score">0</div>
+        <div id="gameStatus" class="game-status">Нажмите "Начать игру" чтобы играть!</div>
+    </div>
+    
+    <div class="game-wrapper">
+        <div class="game-container" id="gameContainer">
+            <canvas id="gameCanvas"></canvas>
+            <div class="resize-handle" id="resizeHandle"></div>
+            <div class="overlay-buttons">
+                <button id="startButton" class="game-button">Начать игру</button>
+                <button id="restartButton" class="game-button" style="display: none;">Перезапустить игру</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="size-controls">
+        <button id="resetSizeBtn" class="size-btn">Сбросить размер</button>
+        <span class="size-info" id="sizeInfo">400x400</span>
+    </div>
     
     <script src="game.js"></script>
 </body>
