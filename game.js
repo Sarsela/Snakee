@@ -1,4 +1,4 @@
-const GAME_SPEED = 100;
+const GAME_SPEED = 150;
 const CANVAS_BORDER_COLOUR = 'black';
 const CANVAS_BACKGROUND_COLOUR = "white";
 const SNAKE_COLOUR = 'lightgreen';
@@ -18,6 +18,8 @@ let isGameRunning = false;
 let isGameActive = false;
 let cellSize = 20;
 let gridSize = 15;
+
+let pendingDirection = null;
 
 const gameCanvas = document.getElementById("gameCanvas");
 let ctx;
@@ -99,6 +101,7 @@ function initSnake() {
     
     dx = cellSize;
     dy = 0;
+    pendingDirection = null;
 }
 
 function updateSizeInfo() {
@@ -175,6 +178,7 @@ function resetGameState() {
     score = 0;
     changingDirection = false;
     isGameActive = true;
+    pendingDirection = null;
     
     scoreElement.innerHTML = score;
     foodX = undefined;
@@ -220,6 +224,11 @@ function main() {
     }
     
     gameLoop = setTimeout(function onTick() {
+        if (pendingDirection !== null) {
+            applyDirection(pendingDirection);
+            pendingDirection = null;
+        }
+        
         changingDirection = false;
         clearCanvas();
         drawFood();
@@ -227,6 +236,30 @@ function main() {
         drawSnake();
         main();
     }, GAME_SPEED);
+}
+
+function applyDirection(direction) {
+    const goingUp = dy === -cellSize;
+    const goingDown = dy === cellSize;
+    const goingRight = dx === cellSize;
+    const goingLeft = dx === -cellSize;
+    
+    if (direction === 'LEFT' && !goingRight) {
+        dx = -cellSize;
+        dy = 0;
+    }
+    if (direction === 'UP' && !goingDown) {
+        dx = 0;
+        dy = -cellSize;
+    }
+    if (direction === 'RIGHT' && !goingLeft) {
+        dx = cellSize;
+        dy = 0;
+    }
+    if (direction === 'DOWN' && !goingUp) {
+        dx = 0;
+        dy = cellSize;
+    }
 }
 
 function advanceSnake() {
@@ -335,32 +368,22 @@ function changeDirection(event) {
     const UP_KEY = 38;
     const DOWN_KEY = 40;
     
-    if (changingDirection) return;
-    changingDirection = true;
-    
     const keyPressed = event.keyCode;
     
-    const goingUp = dy === -cellSize;
-    const goingDown = dy === cellSize;
-    const goingRight = dx === cellSize;
-    const goingLeft = dx === -cellSize;
+    if (keyPressed === LEFT_KEY) {
+        pendingDirection = 'LEFT';
+    }
+    if (keyPressed === UP_KEY) {
+        pendingDirection = 'UP';
+    }
+    if (keyPressed === RIGHT_KEY) {
+        pendingDirection = 'RIGHT';
+    }
+    if (keyPressed === DOWN_KEY) {
+        pendingDirection = 'DOWN';
+    }
     
-    if (keyPressed === LEFT_KEY && !goingRight) {
-        dx = -cellSize;
-        dy = 0;
-    }
-    if (keyPressed === UP_KEY && !goingDown) {
-        dx = 0;
-        dy = -cellSize;
-    }
-    if (keyPressed === RIGHT_KEY && !goingLeft) {
-        dx = cellSize;
-        dy = 0;
-    }
-    if (keyPressed === DOWN_KEY && !goingUp) {
-        dx = 0;
-        dy = cellSize;
-    }
+    event.preventDefault();
 }
 
 function gameOver() {
@@ -381,6 +404,7 @@ function gameOver() {
     
     foodX = undefined;
     foodY = undefined;
+    pendingDirection = null;
     
     clearCanvas();
     drawSnake();
