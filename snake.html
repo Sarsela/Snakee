@@ -9,23 +9,47 @@
 </head>
 <body>
     <div class="game-header">
-        <div id="score">0</div>
-        <div id="gameStatus" class="game-status">Нажмите "Начать игру" чтобы играть!</div>
+        <div class="score-container">
+            <span class="score-label">СЧЕТ</span>
+            <div id="score">0000</div>
+        </div>
+        <div id="gameStatus" class="game-status">НАЖМИТЕ "НАЧАТЬ ИГРУ"</div>
     </div>
     
-    <div class="game-wrapper">
-        <div class="game-container" id="gameContainer">
-            <canvas id="gameCanvas"></canvas>
-            <div class="resize-handle" id="resizeHandle"></div>
-            <div class="overlay-buttons">
-                <button id="startButton" class="game-button">Начать игру</button>
-                <button id="restartButton" class="game-button" style="display: none;">Перезапустить игру</button>
+    <div class="main-layout">
+        <div class="game-wrapper">
+            <div class="game-container" id="gameContainer">
+                <div class="screen-border">
+                    <div class="screen-bezel">
+                        <canvas id="gameCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="resize-handle" id="resizeHandle"></div>
+                <div class="overlay-buttons">
+                    <button id="startButton" class="game-button">▶ НАЧАТЬ ИГРУ</button>
+                    <button id="restartButton" class="game-button" style="display: none;">⟳ ПЕРЕЗАПУСТИТЬ</button>
+                </div>
+                <div id="namePopup" class="name-popup" style="display: none;">
+                    <div class="popup-content">
+                        <div class="popup-title">ИГРА ОКОНЧЕНА</div>
+                        <div class="popup-score">СЧЕТ: <span id="popupScore">0</span></div>
+                        <input type="text" id="popupNameInput" placeholder="ВВЕДИТЕ ИМЯ" maxlength="10" autocomplete="off">
+                        <button id="popupSaveBtn" class="popup-save-btn">ЗАПИСАТЬ</button>
+                        <button id="popupSkipBtn" class="popup-skip-btn">ПРОПУСТИТЬ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="leaderboard">
+            <div class="leaderboard-title">ТАБЛИЦА ЛИДЕРОВ</div>
+            <div id="leaderboardList" class="leaderboard-list">
             </div>
         </div>
     </div>
     
     <div class="size-controls">
-        <button id="resetSizeBtn" class="size-btn">Сбросить размер</button>
+        <button id="resetSizeBtn" class="size-btn">СБРОСИТЬ РАЗМЕР</button>
         <span class="size-info" id="sizeInfo">400x400</span>
     </div>
     

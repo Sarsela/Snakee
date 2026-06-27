@@ -1,10 +1,12 @@
 const GAME_SPEED = 150;
-const CANVAS_BORDER_COLOUR = 'black';
-const CANVAS_BACKGROUND_COLOUR = "white";
-const SNAKE_COLOUR = 'lightgreen';
-const SNAKE_BORDER_COLOUR = 'darkgreen';
-const FOOD_COLOUR = 'red';
-const FOOD_BORDER_COLOUR = 'darkred';
+const CANVAS_BORDER_COLOUR = '#2a2a4a';
+const CANVAS_BACKGROUND_COLOUR = "#0a0a15";
+const SNAKE_HEAD_COLOUR = '#4CAF50';
+const SNAKE_BODY_COLOUR = '#388E3C';
+const SNAKE_BORDER_COLOUR = '#2E7D32';
+const FOOD_COLOUR = '#FF1744';
+const FOOD_BORDER_COLOUR = '#D50000';
+const LEADERBOARD_KEY = 'snakeLeaderboard';
 
 let snake = [];
 let score = 0;
@@ -18,7 +20,6 @@ let isGameRunning = false;
 let isGameActive = false;
 let cellSize = 20;
 let gridSize = 15;
-
 let pendingDirection = null;
 
 const gameCanvas = document.getElementById("gameCanvas");
@@ -31,6 +32,140 @@ const overlayButtons = document.querySelector('.overlay-buttons');
 const gameContainer = document.getElementById('gameContainer');
 const sizeInfo = document.getElementById('sizeInfo');
 const resetSizeBtn = document.getElementById('resetSizeBtn');
+const leaderboardList = document.getElementById('leaderboardList');
+const resizeHandle = document.getElementById('resizeHandle');
+
+const namePopup = document.getElementById('namePopup');
+const popupNameInput = document.getElementById('popupNameInput');
+const popupScore = document.getElementById('popupScore');
+const popupSaveBtn = document.getElementById('popupSaveBtn');
+const popupSkipBtn = document.getElementById('popupSkipBtn');
+
+function loadLeaderboard() {
+    try {
+        const data = localStorage.getItem(LEADERBOARD_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveLeaderboard(leaderboard) {
+    try {
+        localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
+    } catch (e) {
+        console.error('Ошибка сохранения:', e);
+    }
+}
+
+function addScore(playerName, score) {
+    if (!playerName || playerName.trim() === '') {
+        return false;
+    }
+    
+    if (score <= 0) {
+        return false;
+    }
+    
+    const leaderboard = loadLeaderboard();
+    
+    leaderboard.push({
+        name: playerName.trim().toUpperCase(),
+        score: score
+    });
+    
+    leaderboard.sort((a, b) => b.score - a.score);
+    
+    if (leaderboard.length > 50) {
+        leaderboard.length = 50;
+    }
+    
+    saveLeaderboard(leaderboard);
+    renderLeaderboard();
+    return true;
+}
+
+function renderLeaderboard() {
+    const leaderboard = loadLeaderboard();
+    
+    if (leaderboard.length === 0) {
+        leaderboardList.innerHTML = `
+            <div class="leaderboard-empty">
+                НЕТ РЕКОРДОВ
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    leaderboard.forEach((item, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1) rankClass = 'top1';
+        else if (rank === 2) rankClass = 'top2';
+        else if (rank === 3) rankClass = 'top3';
+        
+        if (rank <= 10) {
+            html += `
+                <div class="leaderboard-item ${rankClass}">
+                    <span class="rank">#${rank}</span>
+                    <span class="player-name">${escapeHtml(item.name)}</span>
+                    <span class="player-score">${item.score}</span>
+                </div>
+            `;
+        }
+    });
+    
+    leaderboardList.innerHTML = html;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showPopup(score) {
+    popupScore.textContent = score;
+    popupNameInput.value = '';
+    namePopup.style.display = 'flex';
+    setTimeout(() => {
+        popupNameInput.focus();
+    }, 100);
+    
+    isGameRunning = false;
+    isGameActive = false;
+}
+
+function hidePopup() {
+    namePopup.style.display = 'none';
+}
+
+function handlePopupSave() {
+    const name = popupNameInput.value.trim();
+    if (addScore(name, score)) {
+        hidePopup();
+        updateStatus(`РЕКОРД ЗАПИСАН! ${name.toUpperCase()}: ${score}`, false);
+        overlayButtons.style.display = 'flex';
+        startButton.style.display = 'block';
+        startButton.textContent = 'ИГРАТЬ СНОВА';
+        restartButton.style.display = 'none';
+    } else {
+        popupNameInput.style.borderColor = '#f44336';
+        setTimeout(() => {
+            popupNameInput.style.borderColor = '#333';
+        }, 1000);
+    }
+}
+
+function handlePopupSkip() {
+    hidePopup();
+    updateStatus(`ИГРА ОКОНЧЕНА! ${score} ОЧКОВ`, true);
+    overlayButtons.style.display = 'flex';
+    startButton.style.display = 'block';
+    startButton.textContent = 'ИГРАТЬ СНОВА';
+    restartButton.style.display = 'none';
+}
 
 function updateStatus(message, isError = false) {
     gameStatusElement.textContent = message;
@@ -44,12 +179,20 @@ function updateStatus(message, isError = false) {
 }
 
 function initCanvas() {
-    const size = gameContainer.clientWidth;
-    gameCanvas.width = size;
-    gameCanvas.height = size;
-    ctx = gameCanvas.getContext("2d");
+    const rect = gameContainer.getBoundingClientRect();
+    const containerSize = Math.min(rect.width, rect.height);
     
-    cellSize = size / gridSize;
+    const borderPadding = 12 + 8;
+    const availableSize = containerSize - borderPadding * 2;
+    const finalSize = Math.max(150, availableSize);
+    
+    gameCanvas.style.width = finalSize + 'px';
+    gameCanvas.style.height = finalSize + 'px';
+    gameCanvas.width = finalSize;
+    gameCanvas.height = finalSize;
+    
+    ctx = gameCanvas.getContext("2d");
+    cellSize = finalSize / gridSize;
     
     const wasRunning = isGameRunning;
     const wasActive = isGameActive;
@@ -105,45 +248,14 @@ function initSnake() {
 }
 
 function updateSizeInfo() {
-    const size = gameContainer.clientWidth;
-    sizeInfo.textContent = `${size}x${size}`;
+    const rect = gameContainer.getBoundingClientRect();
+    sizeInfo.textContent = `${Math.round(rect.width)}x${Math.round(rect.height)}`;
 }
 
 function resetSize() {
-    const wasRunning = isGameRunning;
-    if (wasRunning) {
-        isGameRunning = false;
-        isGameActive = false;
-        if (gameLoop) {
-            clearTimeout(gameLoop);
-            gameLoop = null;
-        }
-    }
-    
-    gameContainer.style.width = '400px';
-    gameContainer.style.height = '400px';
-    
-    const size = gameContainer.clientWidth;
-    gameCanvas.width = size;
-    gameCanvas.height = size;
-    cellSize = size / gridSize;
-    
-    initSnake();
-    
-    foodX = undefined;
-    foodY = undefined;
-    
-    clearCanvas();
-    drawSnake();
-    
-    if (wasRunning) {
-        createFood();
-        isGameRunning = true;
-        isGameActive = true;
-        main();
-    }
-    
-    updateSizeInfo();
+    gameContainer.style.width = '420px';
+    gameContainer.style.height = '420px';
+    setTimeout(() => initCanvas(), 50);
 }
 
 function startGame() {
@@ -157,8 +269,9 @@ function startGame() {
     isGameActive = true;
     
     overlayButtons.style.display = 'none';
+    hidePopup();
     
-    updateStatus('Игра идет...');
+    updateStatus('ИГРА ИДЕТ...');
     
     clearCanvas();
     drawSnake();
@@ -180,7 +293,7 @@ function resetGameState() {
     isGameActive = true;
     pendingDirection = null;
     
-    scoreElement.innerHTML = score;
+    scoreElement.textContent = String(score).padStart(4, '0');
     foodX = undefined;
     foodY = undefined;
     
@@ -206,7 +319,8 @@ function restartGame() {
     isGameRunning = true;
     isGameActive = true;
     
-    updateStatus('Игра идет...');
+    updateStatus('ИГРА ИДЕТ...');
+    hidePopup();
     
     clearCanvas();
     drawSnake();
@@ -270,7 +384,7 @@ function advanceSnake() {
                       Math.abs(snake[0].x - foodX) < 1 && Math.abs(snake[0].y - foodY) < 1;
     if (didEatFood) {
         score += 10;
-        scoreElement.innerHTML = score;
+        scoreElement.textContent = String(score).padStart(4, '0');
         createFood();
     } else {
         snake.pop();
@@ -322,42 +436,123 @@ function isFoodOnSnake(x, y) {
 }
 
 function drawSnake() {
-    snake.forEach(drawSnakePart);
+    snake.forEach((part, index) => {
+        if (index === 0) {
+            drawSnakeHead(part);
+        } else {
+            drawSnakeBody(part);
+        }
+    });
 }
 
-function drawSnakePart(snakePart) {
-    ctx.fillStyle = SNAKE_COLOUR;
+function drawSnakeBody(snakePart) {
+    const padding = cellSize * 0.08;
+    const radius = cellSize * 0.12;
+    
+    ctx.fillStyle = SNAKE_BODY_COLOUR;
+    ctx.shadowColor = 'rgba(76, 175, 80, 0.2)';
+    ctx.shadowBlur = 4;
+    
+    const x = snakePart.x + padding;
+    const y = snakePart.y + padding;
+    const w = cellSize - padding * 2;
+    const h = cellSize - padding * 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = SNAKE_BORDER_COLOUR;
-    ctx.fillRect(snakePart.x, snakePart.y, cellSize - 1, cellSize - 1);
-    ctx.strokeRect(snakePart.x, snakePart.y, cellSize - 1, cellSize - 1);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+function drawSnakeHead(snakePart) {
+    const padding = cellSize * 0.05;
+    const radius = cellSize * 0.15;
+    
+    ctx.fillStyle = SNAKE_HEAD_COLOUR;
+    ctx.shadowColor = 'rgba(76, 175, 80, 0.4)';
+    ctx.shadowBlur = 8;
+    
+    const x = snakePart.x + padding;
+    const y = snakePart.y + padding;
+    const w = cellSize - padding * 2;
+    const h = cellSize - padding * 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#2E7D32';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 }
 
 function drawFood() {
     if (foodX !== undefined && foodY !== undefined) {
+        const centerX = foodX + cellSize / 2;
+        const centerY = foodY + cellSize / 2;
+        const radius = cellSize * 0.35;
+        
+        ctx.shadowColor = 'rgba(255, 23, 68, 0.6)';
+        ctx.shadowBlur = 15;
+        
         ctx.fillStyle = FOOD_COLOUR;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        
         ctx.strokeStyle = FOOD_BORDER_COLOUR;
-        ctx.fillRect(foodX, foodY, cellSize - 1, cellSize - 1);
-        ctx.strokeRect(foodX, foodY, cellSize - 1, cellSize - 1);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.stroke();
     }
 }
 
 function clearCanvas() {
     ctx.fillStyle = CANVAS_BACKGROUND_COLOUR;
-    ctx.strokeStyle = CANVAS_BORDER_COLOUR;
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
     
-    ctx.strokeStyle = '#ddd';
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(76, 175, 80, 0.05)';
+    ctx.lineWidth = 1;
     for (let i = 0; i <= gridSize; i++) {
         ctx.beginPath();
         ctx.moveTo(i * cellSize, 0);
         ctx.lineTo(i * cellSize, gameCanvas.height);
         ctx.stroke();
+        ctx.beginPath();
         ctx.moveTo(0, i * cellSize);
         ctx.lineTo(gameCanvas.width, i * cellSize);
         ctx.stroke();
     }
+    
+    ctx.strokeStyle = 'rgba(76, 175, 80, 0.15)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
 }
 
 function changeDirection(event) {
@@ -395,36 +590,82 @@ function gameOver() {
         gameLoop = null;
     }
     
-    updateStatus(`Игра окончена! Ваш счет: ${score}`, true);
-    
-    overlayButtons.style.display = 'flex';
-    startButton.style.display = 'block';
-    startButton.textContent = 'Играть снова';
-    restartButton.style.display = 'none';
-    
     foodX = undefined;
     foodY = undefined;
     pendingDirection = null;
     
     clearCanvas();
     drawSnake();
+    
+    if (score > 0) {
+        showPopup(score);
+    } else {
+        updateStatus(`НЕТ ОЧКОВ`, true);
+        overlayButtons.style.display = 'flex';
+        startButton.style.display = 'block';
+        startButton.textContent = 'ИГРАТЬ СНОВА';
+        restartButton.style.display = 'none';
+    }
 }
 
-const resizeObserver = new ResizeObserver(() => {
-    initCanvas();
-});
-
-resizeObserver.observe(gameContainer);
 
 function init() {
-    gameContainer.style.width = '400px';
-    gameContainer.style.height = '400px';
     initCanvas();
+    renderLeaderboard();
     
     startButton.addEventListener("click", startGame);
     restartButton.addEventListener("click", restartGame);
     resetSizeBtn.addEventListener("click", resetSize);
     document.addEventListener("keydown", changeDirection);
+    
+    popupSaveBtn.addEventListener("click", handlePopupSave);
+    popupSkipBtn.addEventListener("click", handlePopupSkip);
+    popupNameInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            handlePopupSave();
+        }
+    });
+    
+    leaderboardList.addEventListener("dblclick", function() {
+        if (confirm('Очистить таблицу?')) {
+            saveLeaderboard([]);
+            renderLeaderboard();
+        }
+    });
+    
+    let isResizing = false;
+    let startX, startY, startWidth, startHeight;
+    
+    resizeHandle.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = gameContainer.offsetWidth;
+        startHeight = gameContainer.offsetHeight;
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isResizing) return;
+        
+        const newWidth = Math.max(250, Math.min(window.innerWidth * 0.9, startWidth + (e.clientX - startX)));
+        const newHeight = Math.max(250, Math.min(window.innerHeight * 0.9, startHeight + (e.clientY - startY)));
+        const size = Math.min(newWidth, newHeight);
+        
+        gameContainer.style.width = size + 'px';
+        gameContainer.style.height = size + 'px';
+        
+        initCanvas();
+    });
+    
+    document.addEventListener('mouseup', function() {
+        isResizing = false;
+    });
+    
+    const resizeObserver = new ResizeObserver(() => {
+        initCanvas();
+    });
+    resizeObserver.observe(gameContainer);
 }
 
 init();
