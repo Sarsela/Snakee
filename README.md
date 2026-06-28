@@ -29,3 +29,6 @@ git clone https://github.com/Sarsela/Snakee.git
 cd snake-game
 - Откройте index.html в браузере
 - Или используйте Live Server в VS Code
+
+## Демонстрация
+![demonstration](./assets/demostration.gif)
