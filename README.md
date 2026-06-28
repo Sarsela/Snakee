@@ -1,4 +1,4 @@
-# 🐍 Snakee - Ретро-змейка [![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee) # 🐍 Snakee - Ретро-змейка (https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
