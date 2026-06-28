@@ -603,14 +603,26 @@ function changeDirection(event) {
         'ArrowUp': 'UP',
         'ArrowRight': 'RIGHT',
         'ArrowDown': 'DOWN',
+
         'a': 'LEFT',
         'w': 'UP',
         'd': 'RIGHT',
         's': 'DOWN',
+
         'A': 'LEFT',
         'W': 'UP',
         'D': 'RIGHT',
-        'S': 'DOWN'
+        'S': 'DOWN',
+
+        'ф': 'LEFT',
+        'ц': 'UP',
+        'в': 'RIGHT',
+        'ы': 'DOWN',
+
+        'Ф': 'LEFT',
+        'Ц': 'UP',
+        'В': 'RIGHT',
+        'Ы': 'DOWN'
     };
     
     const direction = keyMap[key];
