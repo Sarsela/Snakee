@@ -1,5 +1,4 @@
 # 🐍 Snakee - Ретро-змейка
-[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
@@ -8,6 +7,8 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Code Climate](https://img.shields.io/badge/Code%20Climate-A-brightgreen)](https://codeclimate.com/)
+***
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-dark.svg)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 ***
 ## Описание
 Игра "Змейка", выполненная в духе старых игровых автоматов. Игрок управляет змейкой, собирает еду и зарабатывает очки. В игре реализована система сохранения рекордов с таблицей лидеров.
