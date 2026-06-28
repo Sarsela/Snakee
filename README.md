@@ -6,6 +6,7 @@
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Code Climate](https://img.shields.io/badge/Code%20Climate-A-brightgreen)](https://codeclimate.com/)
 ---
 
