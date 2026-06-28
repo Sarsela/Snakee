@@ -1,4 +1,4 @@
-const GAME_SPEED = 150;
+const GAME_SPEED = 130;
 const CANVAS_BORDER_COLOUR = '#2a2a4a';
 const CANVAS_BACKGROUND_COLOUR = "#0a0a15";
 const SNAKE_HEAD_COLOUR = '#4CAF50';
@@ -21,6 +21,7 @@ let isGameActive = false;
 let cellSize = 20;
 let gridSize = 15;
 let pendingDirection = null;
+let lastDirection = null;
 
 const gameCanvas = document.getElementById("gameCanvas");
 let ctx;
@@ -40,6 +41,7 @@ const popupNameInput = document.getElementById('popupNameInput');
 const popupScore = document.getElementById('popupScore');
 const popupSaveBtn = document.getElementById('popupSaveBtn');
 const popupSkipBtn = document.getElementById('popupSkipBtn');
+
 
 function loadLeaderboard() {
     try {
@@ -245,6 +247,7 @@ function initSnake() {
     dx = cellSize;
     dy = 0;
     pendingDirection = null;
+    lastDirection = 'RIGHT';
 }
 
 function updateSizeInfo() {
@@ -292,6 +295,7 @@ function resetGameState() {
     changingDirection = false;
     isGameActive = true;
     pendingDirection = null;
+    lastDirection = 'RIGHT';
     
     scoreElement.textContent = String(score).padStart(4, '0');
     foodX = undefined;
@@ -339,7 +343,18 @@ function main() {
     
     gameLoop = setTimeout(function onTick() {
         if (pendingDirection !== null) {
-            applyDirection(pendingDirection);
+            const newDx = dx;
+            const newDy = dy;
+            
+            const testHead = {
+                x: snake[0].x + newDx,
+                y: snake[0].y + newDy
+            };
+            
+            const isSafe = !isPositionOnSnake(testHead.x, testHead.y, 1);
+            if (isSafe) {
+                applyDirection(pendingDirection);
+            }
             pendingDirection = null;
         }
         
@@ -352,27 +367,50 @@ function main() {
     }, GAME_SPEED);
 }
 
+function isPositionOnSnake(x, y, skipHead = 0) {
+    for (let i = skipHead; i < snake.length; i++) {
+        if (Math.abs(snake[i].x - x) < 1 && Math.abs(snake[i].y - y) < 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function applyDirection(direction) {
     const goingUp = dy === -cellSize;
     const goingDown = dy === cellSize;
     const goingRight = dx === cellSize;
     const goingLeft = dx === -cellSize;
     
+    let newDx = dx;
+    let newDy = dy;
+    
     if (direction === 'LEFT' && !goingRight) {
-        dx = -cellSize;
-        dy = 0;
+        newDx = -cellSize;
+        newDy = 0;
     }
     if (direction === 'UP' && !goingDown) {
-        dx = 0;
-        dy = -cellSize;
+        newDx = 0;
+        newDy = -cellSize;
     }
     if (direction === 'RIGHT' && !goingLeft) {
-        dx = cellSize;
-        dy = 0;
+        newDx = cellSize;
+        newDy = 0;
     }
     if (direction === 'DOWN' && !goingUp) {
-        dx = 0;
-        dy = cellSize;
+        newDx = 0;
+        newDy = cellSize;
+    }
+    
+    const newHeadX = snake[0].x + newDx;
+    const newHeadY = snake[0].y + newDy;
+    
+    const hitWall = newHeadX < 0 || newHeadX >= gameCanvas.width || 
+                    newHeadY < 0 || newHeadY >= gameCanvas.height;
+    
+    if (!hitWall) {
+        dx = newDx;
+        dy = newDy;
     }
 }
 
@@ -434,6 +472,7 @@ function createFood() {
 function isFoodOnSnake(x, y) {
     return snake.some(part => Math.abs(part.x - x) < 1 && Math.abs(part.y - y) < 1);
 }
+
 
 function drawSnake() {
     snake.forEach((part, index) => {
@@ -558,27 +597,65 @@ function clearCanvas() {
 function changeDirection(event) {
     if (!isGameRunning || !isGameActive) return;
     
-    const LEFT_KEY = 37;
-    const RIGHT_KEY = 39;
-    const UP_KEY = 38;
-    const DOWN_KEY = 40;
+    const key = event.key;
+        const keyMap = {
+        'ArrowLeft': 'LEFT',
+        'ArrowUp': 'UP',
+        'ArrowRight': 'RIGHT',
+        'ArrowDown': 'DOWN',
+        'a': 'LEFT',
+        'w': 'UP',
+        'd': 'RIGHT',
+        's': 'DOWN',
+        'A': 'LEFT',
+        'W': 'UP',
+        'D': 'RIGHT',
+        'S': 'DOWN'
+    };
     
-    const keyPressed = event.keyCode;
-    
-    if (keyPressed === LEFT_KEY) {
-        pendingDirection = 'LEFT';
-    }
-    if (keyPressed === UP_KEY) {
-        pendingDirection = 'UP';
-    }
-    if (keyPressed === RIGHT_KEY) {
-        pendingDirection = 'RIGHT';
-    }
-    if (keyPressed === DOWN_KEY) {
-        pendingDirection = 'DOWN';
-    }
+    const direction = keyMap[key];
+    if (!direction) return;
     
     event.preventDefault();
+    
+    const goingUp = dy === -cellSize;
+    const goingDown = dy === cellSize;
+    const goingRight = dx === cellSize;
+    const goingLeft = dx === -cellSize;
+    
+    let newDx = dx;
+    let newDy = dy;
+    
+    if (direction === 'LEFT' && !goingRight) {
+        newDx = -cellSize;
+        newDy = 0;
+    }
+    if (direction === 'UP' && !goingDown) {
+        newDx = 0;
+        newDy = -cellSize;
+    }
+    if (direction === 'RIGHT' && !goingLeft) {
+        newDx = cellSize;
+        newDy = 0;
+    }
+    if (direction === 'DOWN' && !goingUp) {
+        newDx = 0;
+        newDy = cellSize;
+    }
+    
+    const newHeadX = snake[0].x + newDx;
+    const newHeadY = snake[0].y + newDy;
+    
+    const hitWall = newHeadX < 0 || newHeadX >= gameCanvas.width || 
+                    newHeadY < 0 || newHeadY >= gameCanvas.height;
+    
+    if (!hitWall) {
+        dx = newDx;
+        dy = newDy;
+        pendingDirection = null;
+    } else {
+        pendingDirection = direction;
+    }
 }
 
 function gameOver() {
