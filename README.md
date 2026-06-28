@@ -7,7 +7,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sarsela_Snakee&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Sarsela_Snakee)
 [![Code Climate](https://img.shields.io/badge/Code%20Climate-A-brightgreen)](https://codeclimate.com/)
-***
+---
 ## Описание
 Игра "Змейка", выполненная в духе старых игровых автоматов. Игрок управляет змейкой, собирает еду и зарабатывает очки. В игре реализована система сохранения рекордов с таблицей лидеров.
 ### Особенности:
