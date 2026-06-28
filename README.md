@@ -23,9 +23,9 @@
 - **Деплой**: Vercel
 
 ## Запуск проекта локально
-- # Клонируйте репозиторий
+- Клонируйте репозиторий
 git clone https://github.com/Sarsela/Snakee.git
-- # Перейдите в папку проекта
+- Перейдите в папку проекта
 cd snake-game
-- # Откройте index.html в браузере
-- # Или используйте Live Server в VS Code
+- Откройте index.html в браузере
+- Или используйте Live Server в VS Code
