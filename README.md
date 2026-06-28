@@ -31,7 +31,7 @@ cd snake-game
 - Или используйте Live Server в VS Code
 
 ## Деплой
-**Ссылка на рабочий сайт**:  https://snakee-delta.vercel.app
+
 https://snakee-delta.vercel.app/
 ## Демонстрация
 ![demonstration](./assets/demostration.gif)
