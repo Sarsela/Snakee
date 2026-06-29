@@ -35,4 +35,4 @@ cd snake-game
 **Ссылка на рабочий сайт**:  https://snakee-delta.vercel.app
 
 ## Демонстрация
-![demonstration](./assets/demostration.gif)
+![demonstration](./assets/demostration2.gif)
